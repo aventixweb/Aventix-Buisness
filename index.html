@@ -166,6 +166,28 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',
 .income-form-row input:focus{border-color:var(--lime)}
 .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;color:var(--text3);font-size:12px;gap:8px;text-align:center}
 .empty-icon{font-size:22px;opacity:.3}
+
+/* KUNDEN */
+.kunden-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.kunde-card{background:var(--s1);border:.5px solid var(--border);border-radius:var(--radius);padding:1.25rem;cursor:pointer;transition:all .15s;position:relative}
+.kunde-card:hover{border-color:var(--border2);transform:translateY(-1px)}
+.kunde-card-name{font-size:15px;font-weight:700;margin-bottom:3px}
+.kunde-card-url{font-size:11px;color:var(--text3);margin-bottom:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kunde-progress{height:4px;background:var(--s3);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.kunde-progress-bar{height:100%;background:var(--lime);border-radius:2px;transition:width .4s ease}
+.kunde-checks-preview{display:flex;gap:5px;flex-wrap:wrap}
+.kunde-check-dot{width:8px;height:8px;border-radius:50%}
+.kunde-del-btn{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:4px;line-height:1;opacity:0;transition:opacity .15s}
+.kunde-card:hover .kunde-del-btn{opacity:1}
+.kunde-del-btn:hover{color:var(--red)}
+
+/* KUNDE DETAIL MODAL */
+.checklist-item{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:.5px solid var(--border)}
+.checklist-item:last-child{border-bottom:none}
+.check-box{width:22px;height:22px;border-radius:6px;border:.5px solid var(--border2);background:var(--s2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;margin-top:1px}
+.check-box.checked{background:var(--lime);border-color:var(--lime)}
+.check-label{font-size:14px;font-weight:600;flex:1}
+.check-desc{font-size:12px;color:var(--text2);margin-top:2px;line-height:1.5}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* ══════════════════════════════════════════
@@ -200,11 +222,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',
   #view-dashboard>div[style*="1.3fr"],
   #view-dashboard>div[style*="1fr 1fr"]{grid-template-columns:1fr!important;gap:1rem}
 
-  /* Pipeline horizontal scroll */
-  .pipeline{display:flex;flex-direction:row;overflow-x:auto;gap:12px;
-            scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
-            padding-bottom:6px}
-  .pipeline-col{min-width:260px;flex-shrink:0;scroll-snap-align:start}
+  /* Pipeline – stacked vertical on mobile */
+  .pipeline{display:flex;flex-direction:column;gap:10px;overflow-x:visible}
+  .pipeline-col{min-width:unset;width:100%;flex-shrink:unset;scroll-snap-align:unset}
+  .pipeline-cards{max-height:none}
 
   /* Forms */
   .form-grid{grid-template-columns:1fr}.form-group.full{grid-column:unset}
@@ -235,6 +256,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',
 
   /* Settings */
   .settings-row{flex-direction:column;align-items:flex-start;gap:10px}
+
+  /* Kunden */
+  .kunden-grid{grid-template-columns:1fr}
+  .kunde-del-btn{opacity:1}
 
   /* Modals slide up */
   .modal{width:100%;border-radius:24px 24px 0 0;margin-top:auto}
@@ -377,6 +402,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',
     <div class="nav-item" data-view="kalender" onclick="showView('kalender',this)">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="14" height="12" rx="1.5"/><line x1="5" y1="1" x2="5" y2="5"/><line x1="11" y1="1" x2="11" y2="5"/><line x1="1" y1="8" x2="15" y2="8"/></svg>Kalender
     </div>
+    <div class="nav-item" data-view="kunden" onclick="showView('kunden',this)">
+      <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="5" r="2.5"/><path d="M1 13c0-2.8 2.2-5 5-5s5 2.2 5 5"/><circle cx="12" cy="5" r="2"/><path d="M12 9c1.7.3 3 1.8 3 3.5"/></svg>Kunden
+    </div>
     <div class="nav-item" data-view="settings" onclick="showView('settings',this)">
       <svg class="nav-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="2"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>Einstellungen
     </div>
@@ -505,6 +533,17 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',
       </div>
     </div>
 
+    <!-- KUNDEN -->
+    <div class="view" id="view-kunden">
+      <div class="page-header"><div class="page-title">Kunden</div><div class="page-subtitle">Alle Projekte & Checklisten.</div></div>
+      <div style="display:flex;gap:10px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center">
+        <input type="text" id="kunde-name-input" placeholder="Kundenname..." style="flex:1;min-width:180px;background:var(--s1);border:.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'Syne',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s" onkeydown="if(event.key==='Enter')addKunde()">
+        <input type="text" id="kunde-url-input" placeholder="Website URL..." style="flex:1;min-width:180px;background:var(--s1);border:.5px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'Syne',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s">
+        <button class="btn accent" onclick="addKunde()" style="white-space:nowrap">+ Kunde hinzufügen</button>
+      </div>
+      <div id="kunden-list"></div>
+    </div>
+
     <!-- SETTINGS -->
     <div class="view" id="view-settings">
       <div class="page-header"><div class="page-title">Einstellungen</div></div>
@@ -529,6 +568,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',
         <div class="settings-row"><div><div class="settings-label">Leads löschen</div></div><button class="btn danger sm" onclick="clearLeads()">Löschen</button></div>
         <div class="settings-row"><div><div class="settings-label">Einnahmen löschen</div></div><button class="btn danger sm" onclick="clearIncome()">Löschen</button></div>
         <div class="settings-row"><div><div class="settings-label">Aufgaben &amp; Termine löschen</div></div><button class="btn danger sm" onclick="clearTasks()">Löschen</button></div>
+        <div class="settings-row"><div><div class="settings-label">Kunden löschen</div></div><button class="btn danger sm" onclick="clearKunden()">Löschen</button></div>
       </div>
     </div>
 
@@ -601,6 +641,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',
     Kalender
     <svg class="mob-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,6 15,12 9,18"/></svg>
   </div>
+  <div class="mob-nav-item" id="mn-kunden" onclick="mobNavGo('kunden','Kunden')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="7" r="4"/><path d="M2 21c0-4 3.1-7 7-7s7 3 7 7"/><circle cx="19" cy="7" r="3"/><path d="M19 13c2.5.5 4 2.5 4 5"/></svg>
+    Kunden
+    <svg class="mob-nav-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9,6 15,12 9,18"/></svg>
+  </div>
 
   <div class="mob-section">Konto</div>
   <div class="mob-nav-item" id="mn-settings" onclick="mobNavGo('settings','Einstellungen')">
@@ -616,7 +661,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',
 </nav>
 
 <script>
-let state={apiKey:'',signature:'LG Nico',leads:[],todos:[],events:[],income:[]};
+let state={apiKey:'',signature:'LG Nico',leads:[],todos:[],events:[],income:[],kunden:[]};
 let todoFilter='alle';
 let calDate=new Date();
 let calSelectDate=null;
@@ -642,7 +687,7 @@ function init(){
   }
 }
 function save(){localStorage.setItem('outreach_v3',JSON.stringify(state));}
-function refreshAll(){refreshDashboard();renderTodos();renderCalendar();renderIncome();}
+function refreshAll(){refreshDashboard();renderTodos();renderCalendar();renderIncome();renderKunden();}
 
 function saveSetup(){
   const k=document.getElementById('setup-key').value.trim();
@@ -665,6 +710,7 @@ function showView(v,el){
   if(v==='kalender')renderCalendar();
   if(v==='einnahmen')renderIncome();
   if(v==='todos')renderTodos();
+  if(v==='kunden')renderKunden();
   if(v==='dashboard')refreshDashboard();
 }
 function updateApiStatus(ok){document.getElementById('api-dot').className=ok?'dot':'dot off';document.getElementById('api-label').textContent=ok?'API verbunden':'Kein API-Key';}
@@ -881,6 +927,93 @@ function saveSig(){state.signature=document.getElementById('sig-input').value;sa
 function clearLeads(){if(!confirm('Alle Leads löschen?'))return;state.leads=[];save();refreshPipeline();refreshDashboard();toast('Leads gelöscht.','ok');}
 function clearIncome(){if(!confirm('Einnahmen löschen?'))return;state.income=[];save();renderIncome();refreshDashboard();toast('Einnahmen gelöscht.','ok');}
 function clearTasks(){if(!confirm('Aufgaben & Termine löschen?'))return;state.todos=[];state.events=[];save();renderTodos();renderCalendar();refreshDashboard();toast('Gelöscht.','ok');}
+function clearKunden(){if(!confirm('Alle Kunden löschen?'))return;state.kunden=[];save();renderKunden();toast('Kunden gelöscht.','ok');}
+
+// ── KUNDEN ────────────────────────────────────────────
+const CHECKLIST_ITEMS=[
+  {id:'impressum',  label:'Impressum',               desc:'Vollständiges Impressum mit Name, Adresse & Kontakt'},
+  {id:'datenschutz',label:'Datenschutzerklärung',    desc:'DSGVO-konforme Datenschutzerklärung eingebunden'},
+  {id:'cookies',    label:'Cookie-Banner',            desc:'Cookie-Consent-Banner korrekt implementiert'},
+  {id:'erecht24',   label:'eRecht24 Check',           desc:'Rechtliche Texte über eRecht24 geprüft & aktuell'},
+  {id:'seo',        label:'SEO Optimierung',          desc:'Meta-Tags, Alt-Texte & Seitenstruktur optimiert'},
+];
+
+function addKunde(){
+  const name=document.getElementById('kunde-name-input').value.trim();
+  if(!name){toast('Bitte Kundenname eingeben.','err');return;}
+  const url=document.getElementById('kunde-url-input').value.trim();
+  const checks={};
+  CHECKLIST_ITEMS.forEach(c=>checks[c.id]=false);
+  state.kunden.unshift({id:Date.now(),name,url,checks,createdAt:new Date().toISOString()});
+  document.getElementById('kunde-name-input').value='';
+  document.getElementById('kunde-url-input').value='';
+  save();renderKunden();toast('Kunde hinzugefügt.','ok');
+}
+
+function deleteKunde(id,e){
+  e.stopPropagation();
+  if(!confirm('Kunden wirklich löschen?'))return;
+  state.kunden=state.kunden.filter(k=>k.id!==id);
+  save();renderKunden();toast('Kunde gelöscht.','ok');
+}
+
+function toggleKundeCheck(kundeId,checkId){
+  const k=state.kunden.find(x=>x.id===kundeId);
+  if(!k)return;
+  k.checks[checkId]=!k.checks[checkId];
+  save();renderKunden();openKundeModal(kundeId);
+}
+
+function renderKunden(){
+  const el=document.getElementById('kunden-list');if(!el)return;
+  if(state.kunden.length===0){
+    el.innerHTML='<div class="empty" style="padding:3rem 0"><div class="empty-icon">👥</div>Noch keine Kunden – füge deinen ersten hinzu!</div>';
+    return;
+  }
+  el.innerHTML=`<div class="kunden-grid">${state.kunden.map(k=>{
+    const total=CHECKLIST_ITEMS.length;
+    const done=CHECKLIST_ITEMS.filter(c=>k.checks[c.id]).length;
+    const pct=Math.round(done/total*100);
+    const dots=CHECKLIST_ITEMS.map(c=>`<div class="kunde-check-dot" style="background:${k.checks[c.id]?'var(--lime)':'var(--s3)'}"></div>`).join('');
+    return`<div class="kunde-card" onclick="openKundeModal(${k.id})">
+      <button class="kunde-del-btn" onclick="deleteKunde(${k.id},event)">×</button>
+      <div class="kunde-card-name">${escHtml(k.name)}</div>
+      ${k.url?`<div class="kunde-card-url">${escHtml(k.url)}</div>`:'<div class="kunde-card-url" style="color:var(--s3)">Keine URL</div>'}
+      <div class="kunde-progress"><div class="kunde-progress-bar" style="width:${pct}%"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="kunde-checks-preview">${dots}</div>
+        <span style="font-size:11px;font-family:'DM Mono',monospace;color:${pct===100?'var(--lime)':'var(--text3)'}">${done}/${total}</span>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function openKundeModal(id){
+  const k=state.kunden.find(x=>x.id===id);if(!k)return;
+  const total=CHECKLIST_ITEMS.length;
+  const done=CHECKLIST_ITEMS.filter(c=>k.checks[c.id]).length;
+  document.getElementById('modal-title').textContent=k.name;
+  document.getElementById('modal-body').innerHTML=`
+    ${k.url?`<div style="font-size:12px;margin-bottom:1rem"><span style="color:var(--text3)">Website: </span><a href="${escHtml(k.url)}" target="_blank" style="color:var(--lime)">${escHtml(k.url)}</a></div>`:''}
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:1.25rem">
+      <div style="flex:1;height:5px;background:var(--s3);border-radius:3px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(done/total*100)}%;background:var(--lime);border-radius:3px;transition:width .3s ease"></div>
+      </div>
+      <span style="font-size:12px;font-family:'DM Mono',monospace;color:${done===total?'var(--lime)':'var(--text2)'};white-space:nowrap">${done} von ${total} erledigt</span>
+    </div>
+    ${CHECKLIST_ITEMS.map(c=>`
+      <div class="checklist-item" onclick="toggleKundeCheck(${id},'${c.id}')">
+        <div class="check-box${k.checks[c.id]?' checked':''}">
+          ${k.checks[c.id]?'<svg width="12" height="10" viewBox="0 0 12 10" fill="none"><polyline points="1,5 5,9 11,1" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>':''}
+        </div>
+        <div>
+          <div class="check-label" style="${k.checks[c.id]?'text-decoration:line-through;color:var(--text3)':''}">${c.label}</div>
+          <div class="check-desc">${c.desc}</div>
+        </div>
+      </div>`).join('')}
+  `;
+  document.getElementById('lead-modal').classList.add('open');
+}
 
 // UTILS
 function toast(msg,type){const el=document.getElementById('toast');el.textContent=msg;el.className='show '+(type||'');setTimeout(()=>{el.className='';},3000);}
@@ -894,7 +1027,8 @@ document.getElementById('cal-modal').addEventListener('click',function(e){if(e.t
 // ── MOBILE MENU ───────────────────────────────────────
 const VIEW_LABELS = {
   dashboard:'Dashboard','new-lead':'Neuer Lead',pipeline:'Pipeline',
-  einnahmen:'Einnahmen',todos:'Aufgaben',kalender:'Kalender',settings:'Einstellungen'
+  einnahmen:'Einnahmen',todos:'Aufgaben',kalender:'Kalender',
+  kunden:'Kunden',settings:'Einstellungen'
 };
 
 function openMobMenu(){
@@ -929,6 +1063,7 @@ function mobNavGo(v, label){
   if(v==='kalender')renderCalendar();
   if(v==='einnahmen')renderIncome();
   if(v==='todos')renderTodos();
+  if(v==='kunden')renderKunden();
   if(v==='dashboard')refreshDashboard();
   // Scroll to top
   document.querySelector('.main')?.scrollTo(0,0);
